@@ -27,7 +27,18 @@ module.exports = function(robot) {
       process.env.HUBOT_ISSUE_PASSWORD
     );
     backlog.getIssue({ issueKey: issueKey }).then(function(issue) {
-      res.send(issue.url + '\n' + issue.summary);
+      if (!issue) return;
+      backlog.getComments({ issueId: issue.id }).then(function(comments) {
+        var prurl;
+        comments.reverse().some(function(comment) {
+          var pattern = /^(https?:\/\/github.com\/\S*)\s*$/m;
+          var match = comment.content.match(pattern);
+          if (match) prurl = match[0];
+          return match;
+        });
+        prurl = prurl || '';
+        res.send(issue.url + '\n' + issue.summary + '\n' + prurl);
+      });
     });
   });
 };
