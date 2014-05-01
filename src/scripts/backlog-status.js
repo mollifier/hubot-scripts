@@ -49,7 +49,7 @@ module.exports = function(robot) {
         async.mapSeries(users, function(user, next) {
           backlog.findIssue({
             projectId: project.id,
-            statusId: 2, // in progress
+            statusId: [2, 3], // in progress or resolved
             assignerId: user.id,
           }, function(err, issues) {
             next(err, issues);
@@ -110,7 +110,7 @@ module.exports = function(robot) {
         return user.name + ':\n' + user.issues.map(function(issue) {
           return [
             '  ' + issue.url,
-            '    ' + issue.summary,
+            '    ' + issue.status.name + ' ' + issue.summary,
             '    ' + issue.prurl,
           ].join('\n')
         }).join('\n');
