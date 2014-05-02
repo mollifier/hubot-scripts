@@ -37,32 +37,38 @@ var pad = function(o, n, d) {
 var lpad = function(o, n) { return pad(o, n, 'l'); };
 var rpad = function(o, n) { return pad(o, n, 'r'); };
 
-var formatLine = function(name, issues) {
+var formatLine = function(name, issues, display) {
   var closed = issues.filter(function(i) { return i.status.id === 4; });
 
   // count
   var allCount = issues.length;
   var closedCount = closed.length;
-  if (allCount === closedCount) {
+  if ((!display && allCount === closedCount) || (display && allCount === 0)) {
     return '';
   }
 
-  // hours
-  var allHours = issues.reduce(function(hours, i) {
+  // estimated hours
+  var allEstimatedHours = issues.reduce(function(hours, i) {
     return hours + (i.estimated_hours || 0);
   }, 0);
-  var closedHours = closed.reduce(function(hours, i) {
+  var closedEstimatedHours = closed.reduce(function(hours, i) {
     return hours + (i.estimated_hours || 0);
+  }, 0);
+
+  // actual hours
+  var allActualHours = issues.reduce(function(hours, i) {
+    return hours + (i.actual_hours || 0);
   }, 0);
 
   // format
   return format(
-    '  %s: %s/%s (%sh/%sh)\n',
+    '  %s: %s/%s (%sh/%sh,%sh)\n',
     name,
     lpad(closedCount, 4),
     lpad(allCount, 4),
-    lpad(closedHours, 4),
-    lpad(allHours, 4));
+    lpad(closedEstimatedHours, 4),
+    lpad(allEstimatedHours, 4),
+    lpad(allActualHours, 4));
 };
 
 var formatMilestone = function(milestone, users, issues) {
@@ -74,7 +80,7 @@ var formatMilestone = function(milestone, users, issues) {
   var userLines = users.map(function(user) {
     return formatLine(rpad(user.name, width), issues.filter(function(i) {
       return i.assigner && i.assigner.id === user.id;
-    }));
+    }), true);
   });
   return first + second + userLines.join('');
 };
@@ -121,7 +127,8 @@ module.exports = function(robot) {
         } else {
           res.send(
             (process.env.HUBOT_BACKLOG_SUMMARY_USE_HIPCHAT ? '/quote ' : '') +
-            'milestone:\n  All: closed/all (etimated_hours closed/all)\n' +
+            'backlog-summary ' + projectKey + ' result:\n' +
+            'milestone:\n  All: closed/all (estimated closed/all, actual)\n' +
             messages.join(''));
         }
       });
