@@ -22,7 +22,7 @@ module.exports = function(robot) {
   var Promise = require('q').Promise;
   var backlogApi = require('backlog-api');
 
-  robot.respond(/backlog-status\s+([-a-zA-Z]+)\s*$/i, function(res) {
+  robot.respond(/backlog-status\s+([_a-zA-Z0-9]+)\s*$/i, function(res) {
     var projectKey = res.match[1].toUpperCase();
 
     res.send('OK. Now loading...');
