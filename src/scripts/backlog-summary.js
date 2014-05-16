@@ -89,7 +89,7 @@ module.exports = function(robot) {
   var async = require('async');
   var backlogApi = require('backlog-api');
 
-  robot.respond(/backlog-summary\s+([-a-zA-Z]+)\s*$/i, function(res) {
+  robot.respond(/backlog-summary\s+([_a-zA-Z0-9]+)\s*$/i, function(res) {
     var projectKey = res.match[1].toUpperCase();
 
     res.send('OK. Now loading...');
